@@ -31,9 +31,22 @@ redis_client = None
 
 async def init_db():
     """Initialize all database connections"""
-    await init_mongodb()
-    await init_redis()
-    init_postgresql()
+    try:
+        await init_mongodb()
+    except Exception as e:
+        logger.warning(f"MongoDB initialization failed: {e}")
+    
+    try:
+        await init_redis()
+    except Exception as e:
+        logger.warning(f"Redis initialization failed: {e}")
+    
+    try:
+        init_postgresql()
+    except Exception as e:
+        logger.warning(f"PostgreSQL initialization failed: {e}")
+    
+    logger.info("Database initialization completed (some services may be unavailable)")
 
 async def init_mongodb():
     """Initialize MongoDB connection"""
@@ -47,8 +60,8 @@ async def init_mongodb():
         await create_mongodb_indexes()
         
     except Exception as e:
-        logger.error(f"MongoDB connection failed: {e}")
-        raise
+        logger.warning(f"MongoDB connection failed: {e}")
+        logger.warning("Running in development mode without MongoDB")
 
 async def create_mongodb_indexes():
     """Create MongoDB indexes for optimal performance"""
@@ -78,8 +91,8 @@ def init_postgresql():
         logger.info("PostgreSQL connected and tables created")
         
     except Exception as e:
-        logger.error(f"PostgreSQL connection failed: {e}")
-        raise
+        logger.warning(f"PostgreSQL connection failed: {e}")
+        logger.warning("Running in development mode without PostgreSQL")
 
 async def init_redis():
     """Initialize Redis connection"""
@@ -90,8 +103,8 @@ async def init_redis():
         logger.info("Redis connected successfully")
         
     except Exception as e:
-        logger.error(f"Redis connection failed: {e}")
-        raise
+        logger.warning(f"Redis connection failed: {e}")
+        logger.warning("Running in development mode without Redis")
 
 def get_db():
     """Get PostgreSQL database session"""

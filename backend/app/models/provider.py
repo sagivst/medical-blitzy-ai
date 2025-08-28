@@ -34,7 +34,7 @@ class ProviderBase(BaseModel):
     """Base provider model"""
     name: str = Field(..., min_length=1, max_length=200)
     provider_type: ProviderType
-    npi_number: Optional[str] = Field(None, regex=r'^\d{10}$')
+    npi_number: Optional[str] = Field(None, pattern=r'^\d{10}$')
     
     specialties: List[str] = Field(default_factory=list)
     subspecialties: List[str] = Field(default_factory=list)
@@ -43,11 +43,11 @@ class ProviderBase(BaseModel):
     address_line2: Optional[str] = Field(None, max_length=200)
     city: str = Field(..., min_length=1, max_length=100)
     state: str = Field(..., min_length=2, max_length=50)
-    zip_code: str = Field(..., regex=r'^\d{5}(-\d{4})?$')
+    zip_code: str = Field(..., pattern=r'^\d{5}(-\d{4})?$')
     country: str = Field(default="US", min_length=2, max_length=2)
     
-    phone: str = Field(..., regex=r'^\+?1?\d{9,15}$')
-    fax: Optional[str] = Field(None, regex=r'^\+?1?\d{9,15}$')
+    phone: str = Field(..., pattern=r'^\+?1?\d{9,15}$')
+    fax: Optional[str] = Field(None, pattern=r'^\+?1?\d{9,15}$')
     email: Optional[EmailStr] = None
     website: Optional[str] = Field(None, max_length=255)
     
@@ -135,10 +135,10 @@ class ProviderMatch(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     expires_at: datetime
     
-    status: str = Field(default="active", regex="^(active|contacted|scheduled|expired|declined)$")
+    status: str = Field(default="active", pattern="^(active|contacted|scheduled|expired|declined)$")
     
     ai_explanation: str = Field(..., min_length=1)
-    confidence_level: str = Field(..., regex="^(high|medium|low)$")
+    confidence_level: str = Field(..., pattern="^(high|medium|low)$")
     
     estimated_wait_time: Optional[str] = None
     estimated_cost: Optional[Dict[str, float]] = None

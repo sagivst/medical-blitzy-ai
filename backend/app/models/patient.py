@@ -25,20 +25,20 @@ class PatientBase(BaseModel):
     first_name: str = Field(..., min_length=1, max_length=100)
     last_name: str = Field(..., min_length=1, max_length=100)
     email: EmailStr
-    phone: Optional[str] = Field(None, regex=r'^\+?1?\d{9,15}$')
+    phone: Optional[str] = Field(None, pattern=r'^\+?1?\d{9,15}$')
     date_of_birth: datetime
-    gender: Optional[str] = Field(None, regex=r'^(male|female|other|unknown)$')
+    gender: Optional[str] = Field(None, pattern=r'^(male|female|other|unknown)$')
     preferred_language: str = Field(default="en", min_length=2, max_length=5)
     
     address_line1: Optional[str] = Field(None, max_length=200)
     address_line2: Optional[str] = Field(None, max_length=200)
     city: Optional[str] = Field(None, max_length=100)
     state: Optional[str] = Field(None, max_length=50)
-    zip_code: Optional[str] = Field(None, regex=r'^\d{5}(-\d{4})?$')
+    zip_code: Optional[str] = Field(None, pattern=r'^\d{5}(-\d{4})?$')
     country: str = Field(default="US", min_length=2, max_length=2)
     
     emergency_contact_name: Optional[str] = Field(None, max_length=200)
-    emergency_contact_phone: Optional[str] = Field(None, regex=r'^\+?1?\d{9,15}$')
+    emergency_contact_phone: Optional[str] = Field(None, pattern=r'^\+?1?\d{9,15}$')
     emergency_contact_relationship: Optional[str] = Field(None, max_length=50)
 
 class PatientCreate(PatientBase):
@@ -51,18 +51,18 @@ class PatientUpdate(BaseModel):
     """Patient update model"""
     first_name: Optional[str] = Field(None, min_length=1, max_length=100)
     last_name: Optional[str] = Field(None, min_length=1, max_length=100)
-    phone: Optional[str] = Field(None, regex=r'^\+?1?\d{9,15}$')
+    phone: Optional[str] = Field(None, pattern=r'^\+?1?\d{9,15}$')
     preferred_language: Optional[str] = Field(None, min_length=2, max_length=5)
     
     address_line1: Optional[str] = Field(None, max_length=200)
     address_line2: Optional[str] = Field(None, max_length=200)
     city: Optional[str] = Field(None, max_length=100)
     state: Optional[str] = Field(None, max_length=50)
-    zip_code: Optional[str] = Field(None, regex=r'^\d{5}(-\d{4})?$')
+    zip_code: Optional[str] = Field(None, pattern=r'^\d{5}(-\d{4})?$')
     country: Optional[str] = Field(None, min_length=2, max_length=2)
     
     emergency_contact_name: Optional[str] = Field(None, max_length=200)
-    emergency_contact_phone: Optional[str] = Field(None, regex=r'^\+?1?\d{9,15}$')
+    emergency_contact_phone: Optional[str] = Field(None, pattern=r'^\+?1?\d{9,15}$')
     emergency_contact_relationship: Optional[str] = Field(None, max_length=50)
 
 class Patient(PatientBase):
@@ -130,7 +130,7 @@ class FamilyMember(BaseModel):
     name: str = Field(..., min_length=1, max_length=200)
     relationship: str = Field(..., max_length=50)
     email: Optional[EmailStr] = None
-    phone: Optional[str] = Field(None, regex=r'^\+?1?\d{9,15}$')
+    phone: Optional[str] = Field(None, pattern=r'^\+?1?\d{9,15}$')
     preferred_language: str = Field(default="en", min_length=2, max_length=5)
     notification_preferences: Dict[str, bool] = Field(default_factory=dict)
     is_emergency_contact: bool = Field(default=False)
@@ -143,7 +143,7 @@ class Caregiver(BaseModel):
     title: Optional[str] = Field(None, max_length=100)
     organization: Optional[str] = Field(None, max_length=200)
     email: Optional[EmailStr] = None
-    phone: Optional[str] = Field(None, regex=r'^\+?1?\d{9,15}$')
+    phone: Optional[str] = Field(None, pattern=r'^\+?1?\d{9,15}$')
     specialization: Optional[str] = Field(None, max_length=100)
     license_number: Optional[str] = Field(None, max_length=50)
     relationship_type: str = Field(..., max_length=50)  # professional, family, friend
