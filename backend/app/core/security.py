@@ -133,3 +133,71 @@ class HIPAACompliance:
         return anonymized
 
 hipaa = HIPAACompliance()
+
+def get_current_user_id(token_data: Dict[str, Any]) -> str:
+    """Extract user ID from token data"""
+    user_id = token_data.get("sub")
+    if user_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials"
+        )
+    return user_id
+
+def require_patient_access(patient_id: str, token_data: Dict[str, Any]) -> bool:
+    """Check if user has access to patient data"""
+    user_id = get_current_user_id(token_data)
+    user_role = token_data.get("role", "patient")
+    
+    if user_role == "admin":
+        return True
+    elif user_role == "provider":
+        return True
+    elif user_role == "patient" and user_id == patient_id:
+        return True
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Insufficient permissions to access patient data"
+        )
+
+class AuditLogger:
+    """HIPAA-compliant audit logging"""
+    
+    def __init__(self):
+        self.logger = logging.getLogger("audit")
+    
+    def log_authentication(self, user_id: str, success: bool, details: Optional[Dict[str, Any]] = None):
+        """Log authentication attempts"""
+        self.logger.info(
+            f"AUTH: user_id={user_id}, success={success}, "
+            f"timestamp={datetime.utcnow()}, details={details or {}}"
+        )
+    
+    def log_access(self, user_id: str, resource_type: str, resource_id: str, 
+                   action: str, details: Optional[Dict[str, Any]] = None):
+        """Log access to protected resources"""
+        self.logger.info(
+            f"ACCESS: user_id={user_id}, resource_type={resource_type}, "
+            f"resource_id={resource_id}, action={action}, "
+            f"timestamp={datetime.utcnow()}, details={details or {}}"
+        )
+
+audit_logger = AuditLogger()
+
+def generate_patient_id() -> str:
+    """Generate unique patient ID"""
+    import uuid
+    return f"PAT_{uuid.uuid4().hex.upper()[:12]}"
+
+def create_refresh_token(data: Dict[str, Any]) -> str:
+    """Create refresh token"""
+    to_encode = data.copy()
+    to_encode.update({
+        "type": "refresh",
+        "exp": datetime.utcnow() + timedelta(days=7)
+    })
+    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm="HS256")
+
+SecurityManager.generate_patient_id = staticmethod(generate_patient_id)
+SecurityManager.create_refresh_token = create_refresh_token

@@ -13,20 +13,19 @@ fhirpy==2.0.15
 # AI/ML Libraries
 langchain==0.1.0
 scikit-learn==1.3.2
-tensorflow==2.15.0
-torch==2.1.0
+tensorflow==2.19.1
+torch==2.2.2
 transformers==4.35.0
 
 # OCR and Document Processing
 pytesseract==0.3.10
 easyocr==1.7.0
 pdf2image==1.16.3
-opencv-python==4.8.1
+opencv-python==4.10.0.84
 pillow==10.1.0
 
 # Healthcare AI
 pyhealth==1.1.6
-healthcareai==2.5.0
 
 # Data Processing
 pandas==2.1.4
