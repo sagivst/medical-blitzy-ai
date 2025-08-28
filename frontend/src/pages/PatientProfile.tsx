@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UserIcon, PencilIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 const PatientProfile: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);

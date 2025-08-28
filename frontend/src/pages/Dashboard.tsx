@@ -3,10 +3,7 @@ import { Link } from 'react-router-dom';
 import { 
   DocumentTextIcon, 
   MagnifyingGlassIcon,
-  CreditCardIcon,
-  ChartBarIcon,
-  ClockIcon,
-  ExclamationTriangleIcon
+  CreditCardIcon
 } from '@heroicons/react/24/outline';
 
 const Dashboard: React.FC = () => {
