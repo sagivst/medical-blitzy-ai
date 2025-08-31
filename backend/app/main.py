@@ -1,83 +1,101 @@
 """
-Main FastAPI application entry point for Medical Blitzy AI IHN
+Ultra-minimal Flask server for Medical Blitzy AI - Testing Installation
 """
 
-from fastapi import FastAPI, HTTPException, Depends
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from fastapi.security import HTTPBearer
-import uvicorn
-import logging
-from contextlib import asynccontextmanager
+from flask import Flask, jsonify, request
+from flask_cors import CORS
 
-from app.core.config import get_settings
-from app.core.database import init_db
-from app.core.security import verify_token
-from app.api.v1 import api_router
-from app.core.logging import setup_logging
+app = Flask(__name__)
+CORS(app, origins=["http://localhost:3000", "http://127.0.0.1:3000"])
 
-setup_logging()
-logger = logging.getLogger(__name__)
+patients_db = []
+documents_db = []
+providers_db = [
+    {"id": 1, "name": "Dr. Sarah Cohen", "specialty": "Cardiology", "location": "Tel Aviv"},
+    {"id": 2, "name": "Dr. David Levi", "specialty": "Neurology", "location": "Jerusalem"},
+    {"id": 3, "name": "Dr. Rachel Ben-David", "specialty": "Pediatrics", "location": "Haifa"}
+]
+claims_db = []
 
-security = HTTPBearer()
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Application lifespan events"""
-    logger.info("Starting Medical Blitzy AI IHN Backend")
-    await init_db()
-    yield
-    logger.info("Shutting down Medical Blitzy AI IHN Backend")
-
-app = FastAPI(
-    title="Medical Blitzy AI - Integrated Health Navigator",
-    description="AI-powered healthcare navigation platform for complex medical conditions",
-    version="1.0.0",
-    docs_url="/api/docs",
-    redoc_url="/api/redoc",
-    lifespan=lifespan
-)
-
-settings = get_settings()
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.ALLOWED_HOSTS,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-app.add_middleware(
-    TrustedHostMiddleware,
-    allowed_hosts=settings.ALLOWED_HOSTS
-)
-
-app.include_router(api_router, prefix="/api/v1")
-
-@app.get("/health")
-async def health_check():
-    """Health check endpoint"""
-    return {
+@app.route("/health")
+def health_check():
+    return jsonify({
         "status": "healthy",
-        "service": "Medical Blitzy AI IHN",
-        "version": "1.0.0"
-    }
+        "service": "Medical Blitzy AI IHN - Minimal",
+        "version": "0.1.0",
+        "framework": "Flask"
+    })
 
-@app.get("/")
-async def root():
-    """Root endpoint"""
-    return {
-        "message": "Medical Blitzy AI - Integrated Health Navigator API",
-        "version": "1.0.0",
-        "docs": "/api/docs"
-    }
+@app.route("/")
+def root():
+    return jsonify({
+        "message": "Medical Blitzy AI - Minimal Test Version",
+        "version": "0.1.0",
+        "endpoints": ["/health", "/api/v1/patients", "/api/v1/documents", "/api/v1/providers", "/api/v1/insurance"]
+    })
+
+@app.route("/api/v1/patients", methods=["GET", "POST"])
+def patients():
+    if request.method == "GET":
+        return jsonify({"patients": patients_db, "count": len(patients_db)})
+    elif request.method == "POST":
+        data = request.get_json() or {}
+        patient = {
+            "id": len(patients_db) + 1,
+            "name": data.get("name", "Test Patient"),
+            "age": data.get("age", 30),
+            "created": "2024-01-01"
+        }
+        patients_db.append(patient)
+        return jsonify({"message": "Patient created", "patient": patient})
+
+@app.route("/api/v1/documents", methods=["GET", "POST"])
+def documents():
+    if request.method == "GET":
+        return jsonify({"documents": documents_db, "count": len(documents_db)})
+    elif request.method == "POST":
+        data = request.get_json() or {}
+        document = {
+            "id": len(documents_db) + 1,
+            "filename": data.get("filename", "test_document.pdf"),
+            "type": data.get("type", "lab_results"),
+            "status": "uploaded",
+            "created": "2024-01-01"
+        }
+        documents_db.append(document)
+        return jsonify({"message": "Document uploaded", "document": document})
+
+@app.route("/api/v1/providers", methods=["GET"])
+def providers():
+    specialty = request.args.get("specialty")
+    location = request.args.get("location")
+    
+    filtered_providers = providers_db
+    if specialty:
+        filtered_providers = [p for p in filtered_providers if specialty.lower() in p["specialty"].lower()]
+    if location:
+        filtered_providers = [p for p in filtered_providers if location.lower() in p["location"].lower()]
+    
+    return jsonify({"providers": filtered_providers, "count": len(filtered_providers)})
+
+@app.route("/api/v1/insurance", methods=["GET", "POST"])
+def insurance():
+    if request.method == "GET":
+        return jsonify({"claims": claims_db, "count": len(claims_db)})
+    elif request.method == "POST":
+        data = request.get_json() or {}
+        claim = {
+            "id": len(claims_db) + 1,
+            "amount": data.get("amount", 1000),
+            "service": data.get("service", "Medical Consultation"),
+            "status": "submitted",
+            "created": "2024-01-01"
+        }
+        claims_db.append(claim)
+        return jsonify({"message": "Claim submitted", "claim": claim})
 
 if __name__ == "__main__":
-    uvicorn.run(
-        "app.main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True,
-        log_level="info"
-    )
+    print("🚀 Starting Medical Blitzy AI Minimal Server...")
+    print("📍 Server will run on: http://localhost:8000")
+    print("🔗 API Documentation: http://localhost:8000")
+    app.run(host="0.0.0.0", port=8000, debug=True)
