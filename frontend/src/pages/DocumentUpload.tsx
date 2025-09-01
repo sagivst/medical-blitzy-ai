@@ -24,6 +24,26 @@ const DocumentUpload: React.FC = () => {
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [dragActive, setDragActive] = useState(false);
 
+  const handleFiles = useCallback((fileList: FileList) => {
+    const newFiles: UploadedFile[] = Array.from(fileList).map(file => ({
+      id: Math.random().toString(36).substr(2, 9),
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      status: 'uploading',
+      progress: 0
+    }));
+
+    setFiles(prev => [...prev, ...newFiles]);
+
+    newFiles.forEach(file => {
+      const actualFile = Array.from(fileList).find(f => f.name === file.name);
+      if (actualFile) {
+        uploadToBackend(actualFile, file.id);
+      }
+    });
+  }, []);
+
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -42,33 +62,13 @@ const DocumentUpload: React.FC = () => {
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFiles(e.dataTransfer.files);
     }
-  }, []);
+  }, [handleFiles]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     if (e.target.files && e.target.files[0]) {
       handleFiles(e.target.files);
     }
-  };
-
-  const handleFiles = (fileList: FileList) => {
-    const newFiles: UploadedFile[] = Array.from(fileList).map(file => ({
-      id: Math.random().toString(36).substr(2, 9),
-      name: file.name,
-      size: file.size,
-      type: file.type,
-      status: 'uploading',
-      progress: 0
-    }));
-
-    setFiles(prev => [...prev, ...newFiles]);
-
-    newFiles.forEach(file => {
-      const actualFile = Array.from(fileList).find(f => f.name === file.name);
-      if (actualFile) {
-        uploadToBackend(actualFile, file.id);
-      }
-    });
   };
 
   const uploadToBackend = async (file: File, fileId: string) => {
