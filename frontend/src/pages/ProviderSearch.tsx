@@ -32,8 +32,7 @@ const ProviderSearch: React.FC = () => {
   const [location, setLocation] = useState('');
   const [specialty, setSpecialty] = useState('');
   const [isSearching, setIsSearching] = useState(false);
-  
-  const [providers] = useState<Provider[]>([
+  const [providers, setProviders] = useState<Provider[]>([
     {
       id: '1',
       name: 'Dr. Sarah Johnson',
@@ -86,11 +85,47 @@ const ProviderSearch: React.FC = () => {
     }
   ]);
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     setIsSearching(true);
-    setTimeout(() => {
+    try {
+      const params = new URLSearchParams();
+      if (searchQuery) params.append('keywords', searchQuery);
+      if (location) params.append('location', location);
+      if (specialty) params.append('specialty', specialty);
+      
+       const response = await fetch(`http://localhost:8001/api/v1/providers?${params}`);
+      if (!response.ok) {
+        throw new Error(`Search failed: ${response.statusText}`);
+      }
+      
+      const result = await response.json();
+      
+      const transformedProviders = (result.providers || []).map((provider: any) => ({
+        id: provider.id?.toString() || Math.random().toString(),
+        name: provider.name || 'Unknown Provider',
+        specialty: provider.specialty || 'General',
+        rating: 4.5, // Default rating since backend doesn't provide this
+        reviewCount: 50, // Default review count
+        distance: '2.5 miles', // Default distance
+        address: provider.location || 'Address not available',
+        phone: '+1-555-0100',
+        acceptsNewPatients: true,
+        languages: ['English'],
+        matchScore: Math.round((provider.match_score || 0.8) * 100),
+        matchReasons: provider.matched_keywords ? 
+          [`Matches keywords: ${provider.matched_keywords.join(', ')}`] : 
+          ['General match'],
+        estimatedWaitTime: '1-2 weeks',
+        insuranceAccepted: true
+      }));
+      
+      setProviders(transformedProviders);
+      
+    } catch (error) {
+      console.error('Provider search failed:', error);
+    } finally {
       setIsSearching(false);
-    }, 2000);
+    }
   };
 
   const renderStars = (rating: number) => {
@@ -243,7 +278,7 @@ const ProviderSearch: React.FC = () => {
                 <div className="mb-3">
                   <p className="text-sm text-gray-600 mb-1">Why this provider matches:</p>
                   <ul className="text-sm text-gray-500">
-                    {provider.matchReasons.map((reason, index) => (
+                    {provider.matchReasons.map((reason: string, index: number) => (
                       <li key={index} className="flex items-center">
                         <span className="w-1 h-1 bg-gray-400 rounded-full mr-2" />
                         {reason}

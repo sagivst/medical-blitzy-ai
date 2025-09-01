@@ -17,6 +17,7 @@ interface UploadedFile {
   progress: number;
   ocrResult?: string;
   fhirData?: any;
+  matchedProviders?: any[];
 }
 
 const DocumentUpload: React.FC = () => {
@@ -63,41 +64,59 @@ const DocumentUpload: React.FC = () => {
     setFiles(prev => [...prev, ...newFiles]);
 
     newFiles.forEach(file => {
-      simulateUpload(file.id);
+      const actualFile = Array.from(fileList).find(f => f.name === file.name);
+      if (actualFile) {
+        uploadToBackend(actualFile, file.id);
+      }
     });
   };
 
-  const simulateUpload = (fileId: string) => {
-    const uploadInterval = setInterval(() => {
-      setFiles(prev => prev.map(file => {
-        if (file.id === fileId && file.status === 'uploading') {
-          const newProgress = Math.min(file.progress + 10, 100);
-          if (newProgress === 100) {
-            clearInterval(uploadInterval);
-            setTimeout(() => simulateProcessing(fileId), 500);
-            return { ...file, progress: newProgress, status: 'processing' };
-          }
-          return { ...file, progress: newProgress };
+  const uploadToBackend = async (file: File, fileId: string) => {
+    try {
+      setFiles(prev => prev.map(f => {
+        if (f.id === fileId) {
+          return { ...f, status: 'processing' };
         }
-        return file;
+        return f;
       }));
-    }, 200);
-  };
 
-  const simulateProcessing = (fileId: string) => {
-    setTimeout(() => {
-      setFiles(prev => prev.map(file => {
-        if (file.id === fileId) {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const response = await fetch('http://localhost:8001/api/v1/documents/upload-file', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.statusText}`);
+      }
+      
+      const result = await response.json();
+      console.log('Backend response:', result);
+      
+      setFiles(prev => prev.map(f => {
+        if (f.id === fileId) {
           return {
-            ...file,
+            ...f,
             status: 'completed',
-            ocrResult: 'Sample OCR text extracted from document...',
-            fhirData: { resourceType: 'DocumentReference', status: 'current' }
+            ocrResult: result.document?.ocr_text || 'No OCR text available',
+            fhirData: result.document,
+            matchedProviders: result.matched_providers || []
           };
         }
-        return file;
+        return f;
       }));
-    }, 3000);
+      
+    } catch (error) {
+      console.error('Upload failed:', error);
+      setFiles(prev => prev.map(f => {
+        if (f.id === fileId) {
+          return { ...f, status: 'error' };
+        }
+        return f;
+      }));
+    }
   };
 
   const removeFile = (fileId: string) => {
@@ -239,6 +258,31 @@ const DocumentUpload: React.FC = () => {
                         </button>
                         <button className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">
                           View FHIR Data
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {file.status === 'completed' && file.matchedProviders && file.matchedProviders.length > 0 && (
+                    <div className="mt-3 p-3 bg-blue-50 rounded-md">
+                      <h4 className="text-sm font-medium text-blue-800 mb-2">
+                        Recommended Providers ({file.matchedProviders.length})
+                      </h4>
+                      <div className="space-y-2">
+                        {file.matchedProviders.slice(0, 3).map((provider, index) => (
+                          <div key={index} className="text-sm bg-white p-2 rounded border">
+                            <div className="font-medium text-blue-900">{provider.name}</div>
+                            <div className="text-blue-700">{provider.specialty} • {provider.location}</div>
+                            <div className="text-blue-600">Match Score: {Math.round(provider.match_score * 100)}%</div>
+                            <div className="text-xs text-blue-500">
+                              Keywords: {provider.matched_keywords?.join(', ')}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mt-2">
+                        <button className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">
+                          View All Providers
                         </button>
                       </div>
                     </div>
