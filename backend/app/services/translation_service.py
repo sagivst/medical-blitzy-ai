@@ -7,10 +7,12 @@ import logging
 from typing import Dict, Any, Optional, List
 from datetime import datetime
 
-from app.core.config import get_settings
-
 logger = logging.getLogger(__name__)
-settings = get_settings()
+
+class Settings:
+    TRANSLATION_TIMEOUT = 30
+
+settings = Settings()
 
 class TranslationService:
     """Translation service for multilingual support"""

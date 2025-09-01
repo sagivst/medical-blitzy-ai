@@ -32,68 +32,17 @@ const ProviderSearch: React.FC = () => {
   const [location, setLocation] = useState('');
   const [specialty, setSpecialty] = useState('');
   const [isSearching, setIsSearching] = useState(false);
-  const [providers, setProviders] = useState<Provider[]>([
-    {
-      id: '1',
-      name: 'Dr. Sarah Johnson',
-      specialty: 'Cardiology',
-      rating: 4.8,
-      reviewCount: 127,
-      distance: '2.3 miles',
-      address: '123 Medical Center Dr, New York, NY 10001',
-      phone: '+1-555-0123',
-      website: 'https://example.com',
-      acceptsNewPatients: true,
-      languages: ['English', 'Spanish'],
-      matchScore: 95,
-      matchReasons: ['Specializes in your condition', 'Excellent patient outcomes', 'Accepts your insurance'],
-      estimatedWaitTime: '2-3 weeks',
-      insuranceAccepted: true
-    },
-    {
-      id: '2',
-      name: 'Dr. Michael Chen',
-      specialty: 'Endocrinology',
-      rating: 4.6,
-      reviewCount: 89,
-      distance: '4.1 miles',
-      address: '456 Health Plaza, New York, NY 10002',
-      phone: '+1-555-0124',
-      acceptsNewPatients: true,
-      languages: ['English', 'Mandarin'],
-      matchScore: 88,
-      matchReasons: ['High patient satisfaction', 'Board certified', 'Convenient location'],
-      estimatedWaitTime: '1-2 weeks',
-      insuranceAccepted: true
-    },
-    {
-      id: '3',
-      name: 'Dr. Emily Rodriguez',
-      specialty: 'Neurology',
-      rating: 4.9,
-      reviewCount: 203,
-      distance: '6.7 miles',
-      address: '789 Specialist Center, New York, NY 10003',
-      phone: '+1-555-0125',
-      website: 'https://example.com',
-      acceptsNewPatients: false,
-      languages: ['English', 'Spanish', 'Portuguese'],
-      matchScore: 92,
-      matchReasons: ['Top-rated specialist', 'Research experience', 'Multilingual'],
-      estimatedWaitTime: '4-6 weeks',
-      insuranceAccepted: true
-    }
-  ]);
+  const [providers, setProviders] = useState<Provider[]>([]);
 
   const handleSearch = async () => {
     setIsSearching(true);
     try {
       const params = new URLSearchParams();
-      if (searchQuery) params.append('keywords', searchQuery);
+      if (searchQuery) params.append('keywords', searchQuery.replace(/\s+/g, ','));
       if (location) params.append('location', location);
       if (specialty) params.append('specialty', specialty);
       
-       const response = await fetch(`http://localhost:8001/api/v1/providers?${params}`);
+       const response = await fetch(`http://localhost:8000/api/v1/providers?${params}`);
       if (!response.ok) {
         throw new Error(`Search failed: ${response.statusText}`);
       }
