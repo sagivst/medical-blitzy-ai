@@ -83,7 +83,7 @@ const DocumentUpload: React.FC = () => {
       const formData = new FormData();
       formData.append('file', file);
       
-      const response = await fetch('http://localhost:8000/api/v1/documents/upload-file', {
+      const response = await fetch(`http://172.16.5.2:8000/api/v1/documents/upload-file`, {
         method: 'POST',
         body: formData,
       });
