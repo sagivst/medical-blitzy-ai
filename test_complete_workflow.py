@@ -13,7 +13,7 @@ def test_backend_health():
     """Test if backend is running"""
     try:
         import os
-        port = os.environ.get("PORT", "8000")
+        port = os.environ.get("PORT", "8001")
         response = requests.get(f"http://localhost:{port}/health", timeout=5)
         if response.status_code == 200:
             print("✅ Backend health check passed")
@@ -29,7 +29,7 @@ def test_provider_search():
     """Test provider search with keywords"""
     try:
         import os
-        port = os.environ.get("PORT", "8000")
+        port = os.environ.get("PORT", "8001")
         response = requests.get(f"http://localhost:{port}/api/v1/providers?keywords=brain,mri,neurological", timeout=10)
         if response.status_code == 200:
             data = response.json()
@@ -52,7 +52,7 @@ def test_document_upload():
         files = {'file': ('test_mri.txt', test_content, 'text/plain')}
         
         import os
-        port = os.environ.get("PORT", "8000")
+        port = os.environ.get("PORT", "8001")
         response = requests.post(f"http://localhost:{port}/api/v1/documents/upload-file", files=files, timeout=15)
         if response.status_code == 200:
             data = response.json()
@@ -77,7 +77,7 @@ def test_document_based_provider_search(document_id):
     
     try:
         import os
-        port = os.environ.get("PORT", "8000")
+        port = os.environ.get("PORT", "8001")
         response = requests.get(f"http://localhost:{port}/api/v1/documents/{document_id}/providers", timeout=10)
         if response.status_code == 200:
             data = response.json()
@@ -100,7 +100,7 @@ def test_translation_service():
             "target_lang": "he"
         }
         import os
-        port = os.environ.get("PORT", "8000")
+        port = os.environ.get("PORT", "8001")
         response = requests.post(f"http://localhost:{port}/api/v1/translate", json=payload, timeout=10)
         if response.status_code == 200:
             data = response.json()
@@ -123,7 +123,7 @@ def test_communication_service():
             "message": "Test notification"
         }
         import os
-        port = os.environ.get("PORT", "8000")
+        port = os.environ.get("PORT", "8001")
         response = requests.post(f"http://localhost:{port}/api/v1/communications/notify", json=payload, timeout=10)
         if response.status_code == 200:
             data = response.json()
