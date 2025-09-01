@@ -263,7 +263,8 @@ def upload_file():
     if file.filename == '':
         return jsonify({"error": "No file selected"}), 400
     
-    ocr_text = simple_ocr_simulation(file.read())
+    file_content = file.read()
+    ocr_text = simple_ocr_simulation(file_content)
     keywords = extract_medical_keywords(ocr_text)
     
     document = {
@@ -275,7 +276,7 @@ def upload_file():
         "ocr_text": ocr_text,
         "extracted_keywords": keywords,
         "processing_complete": True,
-        "file_size": len(file.read()) if hasattr(file, 'read') else 0
+        "file_size": len(file_content)
     }
     documents_db.append(document)
     
