@@ -20,7 +20,7 @@ def kill_processes_on_ports():
             print(f"⚠️  Port {port} cleanup: {e}")
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://10.0.14.178:3000"])
+CORS(app, origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://172.16.1.2:3000", "http://10.0.4.28:3000"])
 
 patients_db = []
 documents_db = []
@@ -42,7 +42,9 @@ def perform_real_ocr(file_content):
         
         reader = easyocr.Reader(['en'])
         
-        image = Image.open(io.BytesIO(file_content))
+        file_stream = io.BytesIO(file_content)
+        file_stream.seek(0)
+        image = Image.open(file_stream)
         
         image_array = np.array(image)
         
