@@ -42,7 +42,7 @@ const ProviderSearch: React.FC = () => {
       if (location) params.append('location', location);
       if (specialty) params.append('specialty', specialty);
       
-       const response = await fetch(`http://172.16.5.2:8000/api/v1/providers?${params}`);
+       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/v1/providers?${params}`);
       if (!response.ok) {
         throw new Error(`Search failed: ${response.statusText}`);
       }
