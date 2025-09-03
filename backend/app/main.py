@@ -33,7 +33,7 @@ except ImportError as e:
     communication_service = MockCommunicationService()
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3001", "http://127.0.0.1:3001", "http://172.16.5.2:3000", "http://172.16.5.2:8000", "http://172.16.2.2:3000", "http://172.16.2.2:8000", "http://172.16.1.2:3000", "http://172.16.1.2:8000", "https://animated-space-disco-jjwrjpg7x7v4hx4q-3000.app.github.dev", "https://*.app.github.dev"], supports_credentials=True)
+CORS(app, origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3001", "http://127.0.0.1:3001", "http://172.16.5.2:3000", "http://172.16.5.2:8000", "http://172.16.2.2:3000", "http://172.16.2.2:8000", "http://172.16.1.2:3000", "http://172.16.1.2:8000", "http://10.0.14.178:3000", "http://10.0.14.178:8000", "https://animated-space-disco-jjwrjpg7x7v4hx4q-3000.app.github.dev", "https://*.app.github.dev"], supports_credentials=True)
 
 patients_db = []
 documents_db = []
