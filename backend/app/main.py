@@ -9,15 +9,29 @@ import os
 from datetime import datetime
 
 def kill_processes_on_ports():
-    """Kill any processes running on ports 3000 and 8000"""
-    ports = [3000, 8000]
+    """Kill any processes running on ports 3000, 3001, and 8000"""
+    ports = [3000, 3001, 8000, 8001]
     for port in ports:
         try:
+            subprocess.run(f"pkill -f 'port.*{port}'", shell=True, capture_output=True)
             subprocess.run(f"pkill -f ':{port}'", shell=True, capture_output=True)
-            subprocess.run(f"fuser -k {port}/tcp", shell=True, capture_output=True)
+            subprocess.run(f"pkill -f 'localhost:{port}'", shell=True, capture_output=True)
+            subprocess.run(f"fuser -k {port}/tcp", shell=True, capture_output=True, stderr=subprocess.DEVNULL)
+            
+            if port in [3000, 3001]:
+                subprocess.run("pkill -f 'react-scripts'", shell=True, capture_output=True)
+                subprocess.run("pkill -f 'npm.*start'", shell=True, capture_output=True)
+                subprocess.run("pkill -f 'node.*webpack'", shell=True, capture_output=True)
+            elif port in [8000, 8001]:
+                subprocess.run("pkill -f 'python.*main.py'", shell=True, capture_output=True)
+                subprocess.run("pkill -f 'flask.*run'", shell=True, capture_output=True)
+            
             print(f"✅ Cleaned up port {port}")
         except Exception as e:
             print(f"⚠️  Port {port} cleanup: {e}")
+    
+    import time
+    time.sleep(2)
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://172.16.1.2:3000", "http://10.0.4.28:3000", "http://172.16.5.2:3000", "https://animated-space-disco-jjwrjpg7x7v4hx4q-3000.app.github.dev"])
