@@ -20,7 +20,7 @@ def kill_processes_on_ports():
             print(f"⚠️  Port {port} cleanup: {e}")
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://172.16.1.2:3000", "http://10.0.4.28:3000", "http://172.16.5.2:3000"])
+CORS(app, origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://172.16.1.2:3000", "http://10.0.4.28:3000", "http://172.16.5.2:3000", "https://animated-space-disco-jjwrjpg7x7v4hx4q-3000.app.github.dev"])
 
 patients_db = []
 documents_db = []
